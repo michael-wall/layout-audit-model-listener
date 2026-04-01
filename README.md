@@ -3,7 +3,8 @@
 
 ## Sample Audit Event > Additional Information ##
 ```
-{"notes":"Deleted page is the Edit version of the Content Page., Deleted page was deleted from within publication with ctCollectionId: 1.",
+{
+"notes":"Deleted page is the Edit version of the Content Page., Deleted page was deleted from within publication with ctCollectionId: 1.",
 "hidden":true,
 "groupId":"32099",
 "draftLayout":true,
@@ -20,7 +21,8 @@
 "draft":false,
 "name":"zzzzzz",
 "friendlyURL":"/80b381e5-e5b6-31b6-7bb3-5f68616cc8b9",
-"plId:":"25"}
+"plId:":"25"
+}
 ```
 
 ## Implementation Notes ##
