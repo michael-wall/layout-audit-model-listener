@@ -12,6 +12,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -38,25 +39,7 @@ public class LayoutAuditModelListener extends BaseModelListener<Layout> {
 	@Override
 	public void onAfterRemove(Layout model) throws ModelListenerException {
 		
-		try {			
-			_log.info("plId: " + model.getPlid());
-			_log.info("layoutId: " + model.getLayoutId());
-			_log.info("groupId: " + model.getGroupId());
-			_log.info("groupName: " + model.getGroup().getName(Locale.UK));
-			_log.info("name: " + model.getName(Locale.UK)); //Change to US
-			_log.info("title: " + model.getTitle(Locale.UK)); //Change to US
-			_log.info("friendlyURL: " + model.getFriendlyURL(Locale.UK)); //Change to US
-			_log.info("classPK: " + model.getClassPK());
-			_log.info("hidden: " + model.isHidden());
-			_log.info("system: " + model.isSystem());
-			_log.info("draftLayout: " + model.isDraftLayout());
-			_log.info("draft: " + model.isDraft());
-			_log.info("approved: " + model.isApproved());
-			_log.info("privateLayout: " + model.isPrivateLayout());
-			_log.info("layoutType: " + model.getLayoutType());
-			_log.info("ctCollection: " + model.getCtCollectionId());
-			_log.info("uuid: " + model.getUuid());
-			
+		try {
 			long currentCtCollectionId = -1;
 			
 			PermissionChecker permissionChecker = PermissionThreadLocal.getPermissionChecker();
@@ -67,19 +50,19 @@ public class LayoutAuditModelListener extends BaseModelListener<Layout> {
 			
 			String notes = "";
 			
-			if (model.getClassPK() > 0) {
-				notes += "Deleted page is the Edit version of the page.";
-			} else {
-				notes += "Deleted page is the View version of the page.";
+			if (model.getType().equalsIgnoreCase(LayoutConstants.TYPE_CONTENT)) {
+				if (model.getClassPK() > 0) {
+					notes += "Deleted page is the Edit version of the Content Page.";
+				} else {
+					notes += "Deleted page is the View version of the Content Page.";
+				}
 			}
 			
 			if (currentCtCollectionId > -1) {
 				if (Validator.isNotNull(notes)) notes += ", ";
 				notes += "Deleted page was deleted from within publication with ctCollectionId: " + currentCtCollectionId + ".";
 			}
-			
-			_log.info("notes: " + notes);
-			
+						
 			AuditMessage auditMessage = AuditMessageBuilder.buildAuditMessage(EventTypes.DELETE, Layout.class.getName(), model.getPlid(), null);
 	
 			JSONObject additionalInfoJSONObject = auditMessage.getAdditionalInfo();
@@ -99,10 +82,12 @@ public class LayoutAuditModelListener extends BaseModelListener<Layout> {
 				put("draft", model.isDraft()).
 				put("approved", model.isApproved()).
 				put("privateLayout", model.isPrivateLayout()).
-				put("layoutType", model.getLayoutType()).
+				put("type", model.getType()).
 				put("ctCollection", model.getCtCollectionId()).
 				put("uuid", model.getUuid()).
 				put("notes", notes);
+			
+			_log.info(additionalInfoJSONObject.toString());
 	
 			_auditRouter.route(auditMessage);
 
